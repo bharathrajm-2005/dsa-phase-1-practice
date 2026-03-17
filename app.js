@@ -267,9 +267,11 @@ function showMainApp() {
     streakContainer.classList.add('flex');
 
     leaderboardBtn.classList.remove('hidden');
+    leaderboardBtn.classList.add('block');
 
     if (userData?.role === 'admin') {
         adminBtn.classList.remove('hidden');
+        adminBtn.classList.add('block');
     }
 
     renderNavigation();
@@ -573,7 +575,8 @@ function setupModals() {
             });
             content.innerHTML = html || '<div class="text-center text-gray-400 py-12">No data yet. Lead the charge!</div>';
         } catch (e) {
-            content.innerHTML = `<div class="text-center text-red-500 py-12 font-medium">Error loading leaderboard<br><span class="text-xs">Have you added your Firebase API Config? Check the README.</span></div>`;
+            console.error("Leaderboard error:", e);
+            content.innerHTML = `<div class="text-center text-red-500 py-12 font-medium">Error loading leaderboard<br><span class="text-xs text-red-400 mt-2 block">${e.message}</span><br><span class="text-xs text-gray-500 mt-2 block">If it's a "Missing or insufficient permissions" error, please update your Firestore Rules to allow reading users.</span></div>`;
         }
     });
 
