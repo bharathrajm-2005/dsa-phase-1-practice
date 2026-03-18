@@ -374,6 +374,11 @@ function renderSection(sectionId) {
             const taskId = `${section.id}_${dayObj.day}_${tIndex}`;
             const isChecked = progressState[taskId] ? 'checked' : '';
             const completedClass = isChecked ? 'completed' : '';
+            const lcUrl = getLeetCodeUrl(task);
+            const match = task.match(/LC\s*(\d+)/i);
+            const id = match ? parseInt(match[1]) : null;
+            const difficulty = leetcodeDifficultyMap[id];
+            const diffColor = getDifficultyColor(difficulty);
 
             return `
                         <label class="task-item flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-gray-800/80 border border-gray-100 dark:border-gray-700/50 cursor-pointer shadow-sm ${completedClass}">
@@ -382,7 +387,10 @@ function renderSection(sectionId) {
                                 data-day="${dayObj.day}" 
                                 data-taskindex="${tIndex}" 
                                 ${isChecked}>
-                            <span class="text-sm font-medium leading-snug break-words">${task}</span>
+                            <span class="text-sm font-medium leading-snug break-words">
+                                ${lcUrl ? `<a href="${lcUrl}" target="_blank" class="lc-link hover:underline">${task}</a>` : task}
+                                ${difficulty ? `<span class="ml-2 text-[10px] font-bold uppercase tracking-wider ${diffColor} bg-gray-50 dark:bg-gray-900/50 px-1.5 py-0.5 rounded border border-current opacity-80">${difficulty}</span>` : ''}
+                            </span>
                         </label>
                         `;
         }).join('')}
@@ -394,9 +402,201 @@ function renderSection(sectionId) {
     html += `</div>`;
     mainContent.innerHTML = html;
 
+    // Prevent clicking the link from checking the checkbox
+    document.querySelectorAll('.lc-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+
     document.querySelectorAll('.custom-checkbox').forEach(cb => {
         cb.addEventListener('change', (e) => handleTaskCheck(e.target));
     });
+}
+
+const leetcodeSlugMap = {
+    167: "two-sum-ii-input-array-is-sorted",
+    125: "valid-palindrome",
+    977: "squares-of-a-sorted-array",
+    283: "move-zeroes",
+    26: "remove-duplicates-from-sorted-array",
+    27: "remove-element",
+    80: "remove-duplicates-from-sorted-array-ii",
+    88: "merge-sorted-array",
+    11: "container-with-most-water",
+    15: "3sum",
+    16: "3sum-closest",
+    18: "4sum",
+    881: "boats-to-save-people",
+    42: "trapping-rain-water",
+    75: "sort-colors",
+    209: "minimum-size-subarray-sum",
+    643: "maximum-average-subarray-i",
+    1456: "maximum-number-of-vowels-in-a-substring-of-given-length",
+    1004: "max-consecutive-ones-iii",
+    904: "fruit-into-baskets",
+    424: "longest-repeating-character-replacement",
+    239: "sliding-window-maximum",
+    76: "minimum-window-substring",
+    303: "range-sum-query-immutable",
+    1480: "running-sum-of-1d-array",
+    724: "find-pivot-index",
+    560: "subarray-sum-equals-k",
+    523: "continuous-subarray-sum",
+    525: "contiguous-array",
+    238: "product-of-array-except-self",
+    53: "maximum-subarray",
+    152: "maximum-product-subarray",
+    121: "best-time-to-buy-and-sell-stock",
+    122: "best-time-to-buy-and-sell-stock-ii",
+    189: "rotate-array",
+    48: "rotate-image",
+    344: "reverse-string",
+    151: "reverse-words-in-a-string",
+    31: "next-permutation",
+    41: "first-missing-positive",
+    268: "missing-number",
+    287: "find-the-duplicate-number",
+    169: "majority-element",
+    136: "single-number",
+    215: "kth-largest-element-in-an-array",
+    347: "top-k-frequent-elements",
+    14: "longest-common-prefix",
+    680: "valid-palindrome-ii",
+    415: "add-strings",
+    43: "multiply-strings",
+    242: "valid-anagram",
+    49: "group-anagrams",
+    387: "first-unique-character-in-a-string",
+    205: "isomorphic-strings",
+    290: "word-pattern",
+    3: "longest-substring-without-repeating-characters",
+    438: "find-all-anagrams-in-a-string",
+    567: "permutation-in-string",
+    5: "longest-palindromic-substring",
+    647: "palindromic-substrings",
+    131: "palindrome-partitioning",
+    20: "valid-parentheses",
+    394: "decode-string",
+    150: "evaluate-reverse-polish-notation",
+    32: "longest-valid-parentheses",
+    28: "find-the-index-of-the-first-occurrence-in-a-string",
+    259: "3sum-smaller",
+    1877: "minimize-maximum-pair-sum-in-array",
+    487: "max-consecutive-ones-ii",
+    713: "subarray-product-less-than-k",
+    1343: "number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold",
+    1052: "grumpy-bookstore-owner",
+    930: "binary-subarrays-with-sum",
+    1248: "count-number-of-nice-subarrays",
+    992: "subarrays-with-k-different-integers",
+    325: "maximum-size-subarray-sum-equals-k",
+    1588: "sum-of-all-odd-length-subarrays",
+    1423: "maximum-points-you-can-obtain-from-cards",
+    1109: "corporate-flight-bookings",
+    1094: "car-pooling",
+    1314: "matrix-block-sum",
+    1395: "count-number-of-teams",
+    1749: "maximum-absolute-sum-of-any-subarray",
+    1191: "k-concatenation-maximum-sum",
+    1746: "maximum-subarray-sum-after-one-operation",
+    1793: "maximum-score-of-a-good-subarray",
+    2149: "rearrange-array-elements-by-sign",
+    1470: "shuffle-the-array",
+    280: "wiggle-sort",
+    442: "find-all-duplicates-in-an-array",
+    229: "majority-element-ii",
+    137: "single-number-ii",
+    260: "single-number-iii",
+    162: "find-peak-element",
+    852: "peak-index-in-a-mountain-array",
+    274: "h-index",
+    164: "maximum-gap",
+    541: "reverse-string-ii",
+    557: "reverse-words-in-a-string-iii",
+    451: "sort-characters-by-frequency",
+    389: "find-the-difference",
+    771: "jewels-and-stones",
+    1002: "find-common-characters",
+    159: "longest-substring-with-at-most-two-distinct-characters",
+    340: "longest-substring-with-at-most-k-distinct-characters",
+    187: "repeated-dna-sequences",
+    1100: "find-k-length-substrings-with-no-repeated-characters",
+    132: "palindrome-partitioning-ii",
+    516: "longest-palindromic-subsequence",
+    234: "palindrome-linked-list",
+    409: "longest-palindrome",
+    214: "shortest-palindrome",
+    266: "palindrome-permutation",
+    71: "simplify-path",
+    227: "basic-calculator-ii",
+    224: "basic-calculator",
+    856: "score-of-parentheses",
+    921: "minimum-add-to-make-parentheses-valid",
+    1249: "minimum-remove-to-make-valid-parentheses",
+    459: "repeated-substring-pattern",
+    686: "repeated-string-match",
+    1044: "longest-duplicate-substring",
+    1062: "longest-repeating-substring"
+};
+
+const leetcodeDifficultyMap = {
+    // EASY
+    167: "Easy", 125: "Easy", 977: "Easy", 283: "Easy", 26: "Easy", 27: "Easy", 88: "Easy",
+    344: "Easy", 58: "Easy", 14: "Easy", 242: "Easy", 387: "Easy", 383: "Easy", 771: "Easy",
+    1002: "Easy", 20: "Easy", 136: "Easy", 121: "Easy", 1480: "Easy", 724: "Easy", 303: "Easy",
+    561: "Easy", 268: "Easy", 169: "Easy", 409: "Easy", 28: "Easy", 459: "Easy",
+
+    // MEDIUM
+    80: "Medium", 11: "Medium", 15: "Medium", 16: "Medium", 18: "Medium", 881: "Medium",
+    259: "Medium", 75: "Medium", 1877: "Medium", 844: "Easy", 2161: "Medium", 1679: "Medium",
+    209: "Medium", 643: "Easy", 1456: "Medium", 1004: "Medium", 487: "Medium", 904: "Medium",
+    424: "Medium", 713: "Medium", 1343: "Medium", 1052: "Medium", 930: "Medium", 1248: "Medium",
+    992: "Medium", 560: "Medium", 523: "Medium", 525: "Medium", 325: "Medium", 238: "Medium", 53: "Medium",
+    1588: "Easy", 1423: "Medium", 1109: "Medium", 1094: "Medium", 1314: "Medium", 304: "Medium",
+    1395: "Medium", 152: "Medium", 918: "Medium", 978: "Medium", 1749: "Medium", 122: "Medium",
+    1191: "Medium", 1746: "Medium", 1793: "Medium", 1793: "Medium", 189: "Medium", 48: "Medium", 151: "Medium",
+    31: "Medium", 2149: "Medium", 1470: "Easy", 280: "Medium", 73: "Medium", 287: "Medium",
+    442: "Medium", 229: "Medium", 137: "Medium", 260: "Medium", 162: "Medium", 852: "Easy",
+    274: "Medium", 215: "Medium", 347: "Medium", 164: "Hard",
+
+    // HARD
+    42: "Hard", 239: "Hard", 76: "Hard", 41: "Hard",
+
+    // STRINGS
+    541: "Easy", 557: "Easy", 680: "Easy", 415: "Easy", 43: "Medium",
+    49: "Medium", 451: "Medium", 205: "Easy", 290: "Easy", 389: "Easy",
+    3: "Medium", 159: "Medium", 340: "Medium", 438: "Medium", 567: "Medium",
+    187: "Medium", 1100: "Medium",
+    5: "Medium", 647: "Medium", 131: "Medium", 132: "Hard", 516: "Medium",
+    234: "Easy", 214: "Hard", 266: "Easy",
+    71: "Medium", 394: "Medium", 227: "Medium", 224: "Hard",
+    150: "Medium", 856: "Medium", 32: "Hard", 921: "Medium", 1249: "Medium",
+    686: "Medium", 1044: "Hard", 1062: "Medium"
+};
+
+function getDifficultyColor(diff) {
+    if (diff === "Easy") return "text-green-500";
+    if (diff === "Medium") return "text-yellow-500";
+    if (diff === "Hard") return "text-red-500";
+    return "text-gray-400";
+}
+
+function getLeetCodeUrl(taskText) {
+    if (!taskText.startsWith('LC ')) return null;
+
+    const match = taskText.match(/LC\s*(\d+)/i);
+    if (!match) return null;
+
+    const id = parseInt(match[1]);
+    const slug = leetcodeSlugMap[id];
+
+    if (!slug) {
+        // Safe Fallback: Open search page if slug is missing
+        return `https://leetcode.com/problemset/all/?search=${id}`;
+    }
+
+    return `https://leetcode.com/problems/${slug}/`;
 }
 
 function updateOverallProgress() {
